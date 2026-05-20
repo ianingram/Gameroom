@@ -53,3 +53,8 @@ function updateStatus() {
 
 // 5. Run the status update once at the start to set the text to "White to move"
 updateStatus();
+// 6. NEW: Get possible moves for a specific square
+export function getPossibleMoves(square) {
+    // verbose: true gives us the exact 'from' and 'to' coordinates
+    return game.moves({ square: square, verbose: true }); 
+}
