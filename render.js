@@ -117,27 +117,42 @@ window.addEventListener('resize', () => {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// Listen for mouse clicks on the screen
+// Keep track of the currently clicked piece so we can un-highlight it later
+let selectedPiece = null;
+let originalMaterial = null;
+
 window.addEventListener('click', (event) => {
-    // 1. Convert mouse click coordinates to WebGL standard (-1 to +1 scale)
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    // 2. Aim the laser from the camera through the mouse position
     raycaster.setFromCamera(mouse, camera);
-
-    // 3. Check if the laser hit anything inside our pieceGroup
     const intersects = raycaster.intersectObjects(pieceGroup.children);
+    
+    // If we click empty space, deselect the current piece
+    if (intersects.length === 0 && selectedPiece) {
+        selectedPiece.material = originalMaterial;
+        selectedPiece = null;
+        return;
+    }
 
-    // 4. If we hit something, change its color!
     if (intersects.length > 0) {
-        const clickedPiece = intersects[0].object;
+        // Reset the previous piece's color if we click a new one
+        if (selectedPiece) {
+            selectedPiece.material = originalMaterial;
+        }
+
+        selectedPiece = intersects[0].object;
+        originalMaterial = selectedPiece.material; // Save its original color
         
-        // Change the clicked piece to a bright red so we know we grabbed it
-        clickedPiece.material = clickedPiece.material.clone(); // Clone so we don't turn ALL pieces red
-        clickedPiece.material.color.setHex(0xff0000); 
+        // Turn the newly clicked piece red
+        selectedPiece.material = selectedPiece.material.clone(); 
+        selectedPiece.material.color.setHex(0xff0000); 
+
+        // --- NEW: Ask the brain where this piece can go ---
+        const squareName = selectedPiece.userData.id;
+        const validMoves = getPossibleMoves(squareName);
         
-        console.log("Piece selected!");
+        console.log(`You clicked the piece on ${squareName}`);
+        console.log("Valid moves:", validMoves);
     }
 });
 // --- 6. THE ANIMATION LOOP ---
