@@ -103,7 +103,33 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+// --- 5. INTERACTIVITY (Raycasting) ---
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
+// Listen for mouse clicks on the screen
+window.addEventListener('click', (event) => {
+    // 1. Convert mouse click coordinates to WebGL standard (-1 to +1 scale)
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // 2. Aim the laser from the camera through the mouse position
+    raycaster.setFromCamera(mouse, camera);
+
+    // 3. Check if the laser hit anything inside our pieceGroup
+    const intersects = raycaster.intersectObjects(pieceGroup.children);
+
+    // 4. If we hit something, change its color!
+    if (intersects.length > 0) {
+        const clickedPiece = intersects[0].object;
+        
+        // Change the clicked piece to a bright red so we know we grabbed it
+        clickedPiece.material = clickedPiece.material.clone(); // Clone so we don't turn ALL pieces red
+        clickedPiece.material.color.setHex(0xff0000); 
+        
+        console.log("Piece selected!");
+    }
+});
 // --- 6. THE ANIMATION LOOP ---
 function animate() {
     requestAnimationFrame(animate);
