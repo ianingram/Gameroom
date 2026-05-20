@@ -1,6 +1,5 @@
 // render.js
-
-import * as THREE from 'three';
+import { getBoardState, getPossibleMoves } from './logic.js';import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // --- NEW: Import the Brain ---
