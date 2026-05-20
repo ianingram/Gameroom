@@ -68,10 +68,21 @@ const pieceGeometries = {
 };
 
 function renderPieces() {
-    // Clear out any old pieces from the board first
-    while(pieceGroup.children.length > 0){ 
-        pieceGroup.remove(pieceGroup.children[0]); 
-    }
+    // // If the square is not empty, draw a piece!
+            if (square) {
+                const geometry = pieceGeometries[square.type];
+                const material = square.color === 'w' ? materialWhite : materialBlack;
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                // --- NEW: Attach the chess coordinate to the 3D piece ---
+                const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+                const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+                const squareName = files[col] + ranks[row];
+                mesh.userData = { id: squareName, type: square.type, color: square.color };
+
+                mesh.position.set(col - 3.5, mesh.geometry.parameters.height / 2 + 0.1, row - 3.5);
+                pieceGroup.add(mesh);
+            }
 
     // Ask logic.js for the current 8x8 board array
     const boardState = getBoardState(); 
